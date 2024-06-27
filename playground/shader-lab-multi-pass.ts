@@ -17,11 +17,11 @@ import {
   Texture2D,
   Vector3,
   Vector4,
-  WebGLEngine
-} from "@galacean/engine";
-import { ShaderLab } from "@galacean/engine-shader-lab";
-import { OrbitControl } from "@galacean/engine-toolkit-controls";
-import * as dat from "dat.gui";
+  WebGLEngine,
+} from '@galacean/engine';
+import { ShaderLab } from '@galacean/engine-shader-lab';
+import { OrbitControl } from '@galacean/engine-toolkit-controls';
+import * as dat from 'dat.gui';
 
 const LAYER = 40;
 
@@ -31,13 +31,13 @@ const shaderLab = new ShaderLab();
 const loopPassSource = Array.from({ length: LAYER })
   .map((_, index) => {
     const step = (1 / LAYER) * index;
-    const u_furOffset = step % 1 === 0 ? step + ".0" : step;
+    const u_furOffset = step % 1 === 0 ? step + '.0' : step;
     const renderStateSource =
       index > 0
         ? `
     BlendState = transparentBlendState;
     DepthState = transparentDepthState;
-    RenderQueueType = RenderQueueType.Transparent;
+    RenderQueueType = Transparent;
     `
         : ``;
 
@@ -55,15 +55,12 @@ const loopPassSource = Array.from({ length: LAYER })
         sampler2D u_mainTex;
         sampler2D u_layerTex;
 
-        VertexShader = vert;
-        FragmentShader = frag;
-
         struct EnvMapLight {
           vec3 diffuse;
           float mipMapLevel;
           float diffuseIntensity;
           float specularIntensity;
-        }
+        };
         EnvMapLight scene_EnvMapLight;
 
         #ifdef SCENE_USE_SH
@@ -98,7 +95,7 @@ const loopPassSource = Array.from({ length: LAYER })
           vec2 uvOffset = u_uvTilingOffset.zw * u_furOffset;
           o.v_uv = v.TEXCOORD_0 + uvOffset * vec2(1.0, 1.0) / u_uvTilingOffset.xy;
           o.v_uv2 = v.TEXCOORD_0 * u_uvTilingOffset.xy + uvOffset;
-          o.v_normal = normalize( mat3(renderer_NormalMat) * NORMAL );
+          o.v_normal = normalize( mat3(renderer_NormalMat) * v.NORMAL );
           vec4 temp_pos = renderer_ModelMat * position;
           o.v_pos = temp_pos.xyz / temp_pos.w;
 
@@ -132,10 +129,12 @@ const loopPassSource = Array.from({ length: LAYER })
           gl_FragColor.a = 1.0 - alpha2;
           gl_FragColor.a *= mask;
         }
+        VertexShader = vert;
+        FragmentShader = frag;
       }
     `;
   })
-  .join("\n");
+  .join('\n');
 
 const furShaderSource = `Shader "fur-unlit" {
   SubShader "Default" {
@@ -155,14 +154,14 @@ const furShaderSource = `Shader "fur-unlit" {
       vec4 POSITION;
       vec3 NORMAL;
       vec2 TEXCOORD_0;
-    }
+    };
 
     struct v2f {
       vec2 v_uv;
       vec2 v_uv2;
       vec3 v_normal;
       vec3 v_pos;
-    }
+    };
 
     #define PI 3.14159265359
     #define RECIPROCAL_PI 0.31830988618
@@ -175,12 +174,13 @@ class RandomGravityScript extends Script {
   shaderData: ShaderData;
   progress = 0;
   onUpdate(deltaTime: number) {
-    const progress = 0.5 + Math.cos((this.progress = this.progress + deltaTime * 2)) / 2;
-    this.shaderData.setFloat("u_gravityIntensity", progress);
+    const progress =
+      0.5 + Math.cos((this.progress = this.progress + deltaTime * 2)) / 2;
+    this.shaderData.setFloat('u_gravityIntensity', progress);
   }
 }
 
-WebGLEngine.create({ canvas: "canvas", shaderLab }).then((engine) => {
+WebGLEngine.create({ canvas: 'canvas', shaderLab }).then((engine) => {
   engine.canvas.resizeByClientSize();
 
   const furShader = Shader.create(furShaderSource);
@@ -188,7 +188,7 @@ WebGLEngine.create({ canvas: "canvas", shaderLab }).then((engine) => {
   const rootEntity = scene.createRootEntity();
 
   // camera
-  const cameraEntity = rootEntity.createChild("cameraNode");
+  const cameraEntity = rootEntity.createChild('cameraNode');
   cameraEntity.transform.setPosition(0, 0, 5);
   cameraEntity.addComponent(Camera);
   cameraEntity.addComponent(OrbitControl);
@@ -197,16 +197,16 @@ WebGLEngine.create({ canvas: "canvas", shaderLab }).then((engine) => {
     .load([
       {
         type: AssetType.Texture2D,
-        url: "https://mdn.alipayobjects.com/huamei_dmxymu/afts/img/A*R75iTZlbVfgAAAAAAAAAAAAADuuHAQ/original"
+        url: 'https://mdn.alipayobjects.com/huamei_dmxymu/afts/img/A*R75iTZlbVfgAAAAAAAAAAAAADuuHAQ/original',
       },
       {
         type: AssetType.Texture2D,
-        url: "https://mdn.alipayobjects.com/huamei_dmxymu/afts/img/A*t1s4T7h_1OQAAAAAAAAAAAAADuuHAQ/original"
+        url: 'https://mdn.alipayobjects.com/huamei_dmxymu/afts/img/A*t1s4T7h_1OQAAAAAAAAAAAAADuuHAQ/original',
       },
       {
         type: AssetType.Env,
-        url: "https://gw.alipayobjects.com/os/bmw-prod/6470ea5e-094b-4a77-a05f-4945bf81e318.bin"
-      }
+        url: 'https://gw.alipayobjects.com/os/bmw-prod/6470ea5e-094b-4a77-a05f-4945bf81e318.bin',
+      },
     ])
     .then((res) => {
       const layerTexture = res[0] as Texture2D;
@@ -214,7 +214,7 @@ WebGLEngine.create({ canvas: "canvas", shaderLab }).then((engine) => {
       scene.ambientLight = res[2] as AmbientLight;
 
       // create sphere
-      const entity = rootEntity.createChild("sphere");
+      const entity = rootEntity.createChild('sphere');
       const renderer = entity.addComponent(MeshRenderer);
       renderer.mesh = PrimitiveMesh.createSphere(engine, 0.5, 16);
 
@@ -223,13 +223,13 @@ WebGLEngine.create({ canvas: "canvas", shaderLab }).then((engine) => {
 
       const shaderData = material.shaderData;
 
-      shaderData.setTexture("u_mainTex", baseTexture);
-      shaderData.setTexture("u_layerTex", layerTexture);
+      shaderData.setTexture('u_mainTex', baseTexture);
+      shaderData.setTexture('u_layerTex', layerTexture);
 
-      shaderData.setFloat("u_furLength", 0.5);
-      shaderData.setVector4("u_uvTilingOffset", new Vector4(5, 5, 0.5, 0.5));
-      shaderData.setVector3("u_gravity", new Vector3(0, 0, 0));
-      shaderData.setFloat("u_gravityIntensity", 0);
+      shaderData.setFloat('u_furLength', 0.5);
+      shaderData.setVector4('u_uvTilingOffset', new Vector4(5, 5, 0.5, 0.5));
+      shaderData.setVector3('u_gravity', new Vector3(0, 0, 0));
+      shaderData.setFloat('u_gravityIntensity', 0);
 
       const randomGravityScript = entity.addComponent(RandomGravityScript);
       randomGravityScript.shaderData = shaderData;
@@ -240,25 +240,25 @@ WebGLEngine.create({ canvas: "canvas", shaderLab }).then((engine) => {
         uvOffset: 0.5,
         enable: () => {
           randomGravityScript.enabled = !randomGravityScript.enabled;
-          shaderData.setFloat("u_gravityIntensity", 0);
+          shaderData.setFloat('u_gravityIntensity', 0);
           randomGravityScript.progress = 0;
-        }
+        },
       };
 
-      gui.add(debugInfo, "u_furLength", 0, 1, 0.01).onChange((v) => {
-        shaderData.setFloat("u_furLength", v);
+      gui.add(debugInfo, 'u_furLength', 0, 1, 0.01).onChange((v) => {
+        shaderData.setFloat('u_furLength', v);
       });
-      gui.add(debugInfo, "uvScale", 1, 20, 1).onChange((v) => {
-        const value = shaderData.getVector4("u_uvTilingOffset");
+      gui.add(debugInfo, 'uvScale', 1, 20, 1).onChange((v) => {
+        const value = shaderData.getVector4('u_uvTilingOffset');
         value.x = value.y = v;
       });
-      gui.add(debugInfo, "uvOffset", -1, 1, 0.01).onChange((v) => {
-        const value = shaderData.getVector4("u_uvTilingOffset");
+      gui.add(debugInfo, 'uvOffset', -1, 1, 0.01).onChange((v) => {
+        const value = shaderData.getVector4('u_uvTilingOffset');
         value.z = value.w = v;
       });
 
-      gui.add(scene.ambientLight, "diffuseIntensity", 0, 1, 0.01);
-      gui.add(debugInfo, "enable").name("pause/resume");
+      gui.add(scene.ambientLight, 'diffuseIntensity', 0, 1, 0.01);
+      gui.add(debugInfo, 'enable').name('pause/resume');
       engine.run();
     });
 });

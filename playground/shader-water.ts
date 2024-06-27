@@ -26,8 +26,6 @@ Logger.enable();
 const shaderSource = `Shader "customWater" {
   SubShader "Default" {
     Pass "0" {
-      VertexShader = vert;
-      FragmentShader = frag;
 
       mat4 renderer_MVPMat;
 
@@ -35,13 +33,13 @@ const shaderSource = `Shader "customWater" {
         vec3 POSITION;
         vec2 TEXCOORD_0;
         vec3 NORMAL;
-      }
+      };
 
       struct v2f {
         vec2 v_uv;
         vec3 v_position;
         vec3 v_normal;
-      }
+      };
 
       v2f vert(a2v v) {
         v2f o;
@@ -168,6 +166,9 @@ const shaderSource = `Shader "customWater" {
         
         gl_FragColor = vec4(col,1.0);
       }
+
+      VertexShader = vert;
+      FragmentShader = frag;
     }
   }
 }

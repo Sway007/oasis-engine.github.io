@@ -32,14 +32,11 @@ const normalShaderSource = `Shader "Triangle" {
 
       struct a2v {
         vec4 POSITION;
-      }
+      };
 
       struct v2f {
         vec3 v_color;
-      }
-
-      VertexShader = vert;
-      FragmentShader = frag;
+      };
 
       v2f vert(a2v v) {
         v2f o;
@@ -52,6 +49,9 @@ const normalShaderSource = `Shader "Triangle" {
       void frag(v2f i) {
         gl_FragColor = vec4(i.v_color, 1.0);
       }
+
+      VertexShader = vert;
+      FragmentShader = frag;
     }
   }
 }`;
@@ -65,15 +65,12 @@ Shader "Lines" {
 
       struct a2v {
         vec4 POSITION;
-      }
+      };
 
       struct v2f {
         vec4 v_pos;
         vec3 v_color;
-      }
-
-      VertexShader = vert;
-      FragmentShader = frag;
+      };
 
       v2f vert(a2v v) {
         v2f o;
@@ -102,6 +99,9 @@ Shader "Lines" {
         }
         gl_FragColor = color;
       }
+
+      VertexShader = vert;
+      FragmentShader = frag;
     }
   }
 }`;
